@@ -350,6 +350,10 @@ impl MapMemory {
         self.zoom.zoom_out()
     }
 
+    pub fn zoom_get(&mut self) -> u8 {
+        self.zoom.round()
+    }
+
     /// Returns exact position if map is detached (i.e. not following `my_position`),
     /// `None` otherwise.
     pub fn detached(&self) -> Option<Position> {
