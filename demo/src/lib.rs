@@ -109,7 +109,10 @@ impl eframe::App for MyApp {
             .frame(rimless)
             .show(ctx, |ui| {
                 // Typically this would be a GPS acquired position which is tracked by the map.
-                let my_position = places::wroclaw_glowny();
+                let my_position = match self.map_memory.clicked_at() {
+                    Some(position) => position,
+                    None => places::wroclaw_glowny(),
+                };
 
                 let tiles = self
                     .providers
@@ -136,6 +139,7 @@ impl eframe::App for MyApp {
 
                     zoom(ui, &mut self.map_memory);
                     go_to_my_position(ui, &mut self.map_memory);
+                    show_my_position(ui, &my_position);
                     controls(
                         ui,
                         &mut self.selected_provider,

@@ -137,6 +137,19 @@ impl Map<'_, '_, '_> {
             .center_mode
             .recalculate_inertial_movement(ui.ctx());
     }
+
+    fn click(&mut self, _ui: &mut Ui, response: &Response) {
+        if response.clicked_by(egui::PointerButton::Primary) {
+            if let Some(offset) = response.hover_pos().map(|p| p - response.rect.center()) {
+                self.memory.click_position = self
+                    .memory
+                    .center_mode
+                    .clone()
+                    .shift(-offset)
+                    .detached(self.memory.zoom.round());
+            }
+        }
+    }
 }
 
 impl Widget for Map<'_, '_, '_> {
@@ -144,6 +157,7 @@ impl Widget for Map<'_, '_, '_> {
         let (rect, response) = ui.allocate_exact_size(ui.available_size(), Sense::drag());
 
         self.zoom_and_drag(ui, &response);
+        self.click(ui, &response);
 
         let zoom = self.memory.zoom.round();
         let map_center = self.memory.center_mode.position(self.my_position, zoom);
@@ -335,6 +349,7 @@ impl Center {
 pub struct MapMemory {
     center_mode: Center,
     zoom: Zoom,
+    click_position: Option<Position>,
 }
 
 impl MapMemory {
@@ -362,6 +377,11 @@ impl MapMemory {
             position,
             offset: Default::default(),
         });
+    }
+
+    /// Get last absolute coordinates of last click
+    pub fn clicked_at(&self) -> Option<Position> {
+        self.click_position
     }
 
     /// Follow `my_position`.
